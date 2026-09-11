@@ -5,7 +5,7 @@
     "owner": "razeev99091",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./icon.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "splash": {
       "resizeMode": "contain",
@@ -23,7 +23,7 @@
   "android.permission.RECORD_AUDIO"
 ],
       "adaptiveIcon": {
-        "foregroundImage": "./icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#0a0f1d"
       }
     },
