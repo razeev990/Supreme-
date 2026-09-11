@@ -1,23 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StatusBar, SafeAreaView, StyleSheet } from 'react-native';
+
+// ==========================================
+// 📥 IMPORTING GAME UI COMPONENTS & MODALS
+// ==========================================
+import PlayerCard from '../components/common/PlayerCard';
+import BoardBase from '../components/game/BoardBase';
+import BoardCell from '../components/game/BoardCell';
+import ChatModal from '../components/modals/ChatModal';
 
 const GameScreen = ({
   handleExitGame, matchPrizePool, gameMode, isMicOn, toggleVoiceMic, 
-  setChatModal, chatMessages, perspective, getTurnColorHex, boardRotation, 
-  renderPlayerCard, renderBase, renderCell, renderAllTokens
+  perspective, getTurnColorHex, boardRotation, CELL_SIZE, 
+  sendChatMessage, myColor, chatMessages 
 }) => {
+  const [chatModal, setChatModal] = useState(false);
+  const [chatInputText, setChatInputText] = useState('');
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <StatusBar barStyle="light-content" backgroundColor="#0f2b5c" />
       <Image source={require('../../assets/lobby_bg.png')} style={styles.inGameBgCover} resizeMode="cover" blurRadius={12} />
       <View style={styles.inGameBackdropShade} />
 
+      {/* 🚀 LIVE CHAT MODAL */}
+      <ChatModal 
+        visible={chatModal} 
+        onClose={() => setChatModal(false)} 
+        chatMessages={chatMessages} 
+        chatInputText={chatInputText} 
+        setChatInputText={setChatInputText} 
+        sendChatMessage={sendChatMessage} 
+        myColor={myColor} 
+        getTurnColorHex={getTurnColorHex} 
+      />
+
       <View style={styles.headerBar}>
         <TouchableOpacity style={styles.exitBtn} onPress={handleExitGame}>
           <Text style={styles.exitBtnText}>✕ Exit</Text>
         </TouchableOpacity>
         <View style={styles.inGamePoolBox}>
-          <Text style={styles.inGamePoolText}>🪙 Pool: {matchPrizePool.toLocaleString()}</Text>
+          <Text style={styles.inGamePoolText}>🪙 Pool: {matchPrizePool?.toLocaleString()}</Text>
         </View>
         {(gameMode === 'ONLINE' || gameMode === 'HYBRID') && (
           <View style={styles.onlineGameActions}>
@@ -26,45 +49,55 @@ const GameScreen = ({
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.8} style={[styles.inGameIconBtn, styles.chatTriggerBtn]} onPress={() => setChatModal(true)}>
               <Text style={{ fontSize: 16 }}>💬</Text>
-              {chatMessages.length > 0 && <View style={styles.chatBadgeDot} />}
+              {chatMessages?.length > 0 && <View style={styles.chatBadgeDot} />}
             </TouchableOpacity>
           </View>
         )}
       </View>
 
+      {/* TOP PLAYER CARDS */}
       <View style={styles.topCardsRow}>
-        {renderPlayerCard(perspective.leftColor, getTurnColorHex(perspective.leftColor), false)}
-        {renderPlayerCard(perspective.topColor, getTurnColorHex(perspective.topColor), true)}
+        {/* Aapke renderPlayerCard Logic yahan aayenge */}
       </View>
 
       <View style={styles.boardContainer}>
         <View style={[styles.board, { transform: [{ rotate: boardRotation }] }]}>
-          {renderBase('RED', styles.redBase, true)}
-          {renderBase('GREEN', styles.greenBase, false)}
-          {renderBase('BLUE', styles.blueBase, false)}
-          {renderBase('YELLOW', styles.yellowBase, false)}
+          
+          {/* LUDO BASES */}
+          <BoardBase color="RED" posStyle={styles.redBase} isRanked={-1} CELL_SIZE={CELL_SIZE} getTurnColorHex={getTurnColorHex} inverseRot="90deg" />
+          <BoardBase color="GREEN" posStyle={styles.greenBase} isRanked={-1} CELL_SIZE={CELL_SIZE} getTurnColorHex={getTurnColorHex} inverseRot="180deg" />
+          <BoardBase color="BLUE" posStyle={styles.blueBase} isRanked={-1} CELL_SIZE={CELL_SIZE} getTurnColorHex={getTurnColorHex} inverseRot="0deg" />
+          <BoardBase color="YELLOW" posStyle={styles.yellowBase} isRanked={-1} CELL_SIZE={CELL_SIZE} getTurnColorHex={getTurnColorHex} inverseRot="-90deg" />
+          
           <View style={styles.centerHome}>
             <View style={styles.centerTriangleTop} />
             <View style={styles.centerTriangleRight} />
             <View style={styles.centerTriangleBottom} />
             <View style={styles.centerTriangleLeft} />
           </View>
+
+          {/* LUDO CELLS */}
           {Array.from({ length: 15 }).map((_, r) =>
-            Array.from({ length: 15 }).map((_, c) => renderCell(r, c))
+            Array.from({ length: 15 }).map((_, c) => (
+              <BoardCell key={`${r}-${c}`} row={r} col={c} CELL_SIZE={CELL_SIZE} inverseRot="0deg" />
+            ))
           )}
-          {renderAllTokens()}
+
+          {/* PLAYERS TOKENS (Gotis) */}
+          {/* renderAllTokens() function yahan call hoga */}
+
         </View>
       </View>
 
+      {/* BOTTOM PLAYER CARDS */}
       <View style={styles.bottomCardsRow}>
-        {renderPlayerCard(perspective.bottomColor, getTurnColorHex(perspective.bottomColor), false)}
-        {renderPlayerCard(perspective.rightColor, getTurnColorHex(perspective.rightColor), true)}
+        {/* Aapke renderPlayerCard Logic yahan aayenge */}
       </View>
     </SafeAreaView>
   );
 };
 
-// Paste GameScreen specific styles here (like mainContainer, headerBar, topCardsRow, boardContainer)
+// ... Apne purane GameScreen ke styles yahan neeche paste karein ...
 const styles = StyleSheet.create({
   mainContainer: { flex:1, backgroundColor:'#0f2b5c', alignItems:'center', justifyContent:'space-between', paddingVertical:10 },
   inGameBgCover: { position:'absolute', top:0, bottom:0, left:0, right:0, width:'100%', height:'100%', opacity:0.38 },
@@ -92,7 +125,7 @@ const styles = StyleSheet.create({
   centerTriangleTop: { position:'absolute', top:0, left:0, width:0, height:0, borderLeftWidth:35, borderRightWidth:35, borderTopWidth:35, borderLeftColor:'transparent', borderRightColor:'transparent', borderTopColor:'#16a34a' },
   centerTriangleRight: { position:'absolute', top:0, right:0, width:0, height:0, borderTopWidth:35, borderBottomWidth:35, borderRightWidth:35, borderTopColor:'transparent', borderBottomColor:'transparent', borderRightColor:'#eab308' },
   centerTriangleBottom: { position:'absolute', bottom:0, left:0, width:0, height:0, borderLeftWidth:35, borderRightWidth:35, borderBottomWidth:35, borderLeftColor:'transparent', borderRightColor:'transparent', borderBottomColor:'#2563eb' },
-  centerTriangleLeft: { position:'absolute', top:0, left:0, width:0, height:0, borderTopWidth:35, borderBottomWidth:35, borderLeftWidth:35, borderTopColor:'transparent', borderBottomColor:'transparent', borderLeftColor:'#ef4444' },
+  centerTriangleLeft: { position:'absolute', top:0, left:0, width:0, height:0, borderTopWidth:35, borderBottomWidth:35, borderLeftWidth:35, borderTopColor:'transparent', borderBottomColor:'transparent', borderLeftColor:'#ef4444' }
 });
 
 export default GameScreen;
