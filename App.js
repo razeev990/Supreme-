@@ -13,6 +13,7 @@ import {
   ChannelProfileType,
   ClientRoleType
 } from 'react-native-agora';
+import GameScreen from './src/screens/GameScreen';
 
 const SUPABASE_PROJECT_REF = 'zyqlntdpftowobsrzbgv';
 const SUPABASE_ANON_KEY = 'sb_publishable_DuyB_EEKvMkDk0QFxQykqg_ZXCMzTwo';
