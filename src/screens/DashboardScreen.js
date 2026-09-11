@@ -1,17 +1,80 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StatusBar, SafeAreaView, StyleSheet } from 'react-native';
 
+// ==========================================
+// 📥 IMPORTING DASHBOARD MODALS
+// ==========================================
+import SettingsModal from '../components/modals/SettingsModal';
+import FriendsModal from '../components/modals/FriendsModal';
+import AvatarModal from '../components/modals/AvatarModal';
+import DailyBonusModal from '../components/modals/DailyBonusModal';
+
 const DashboardScreen = ({
-  currentUser, loadGlobalLeaderboard, setLeaderboardModal, 
-  setFriendsModal, fetchCloudFriendList, pendingRequests, incomingInvitesList, 
-  setSettingsModal, setDailyBonusModal, setProfileStatsModal, 
-  setBotSelectModal, setPassPlayModal, setHybridTeamModal, setOnlineScreen
+  currentUser, userAvatar, setUserAvatar, soundEnabled, toggleSound, handleLogout,
+  loadGlobalLeaderboard, fetchCloudFriendList, pendingRequests, incomingInvitesList,
+  setLeaderboardModal, setProfileStatsModal, setBotSelectModal, 
+  setPassPlayModal, setHybridTeamModal, setOnlineScreen, claimDailyBonus, dailyBonusClaimed
 }) => {
+  // Local States for Dashboard Modals
+  const [settingsModal, setSettingsModal] = useState(false);
+  const [friendsModal, setFriendsModal] = useState(false);
+  const [avatarModal, setAvatarModal] = useState(false);
+  const [dailyBonusModal, setDailyBonusModal] = useState(false);
+  const [avatarCategory, setAvatarCategory] = useState('FEMALE');
+
+  // Modal handlers
+  const selectAvatar = (icon) => {
+    setUserAvatar(icon);
+    setAvatarModal(false);
+  };
+
   return (
     <View style={styles.dashboardContainer}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <Image source={require('../../assets/lobby_bg.png')} style={styles.lobbyBgImage} resizeMode="cover" />
       
+      {/* ========================================== */}
+      {/* 🚀 RENDERING MODALS */}
+      {/* ========================================== */}
+      <DailyBonusModal 
+        visible={dailyBonusModal} 
+        onClose={() => setDailyBonusModal(false)} 
+        dailyBonusClaimed={dailyBonusClaimed} 
+        claimDailyBonus={claimDailyBonus} 
+      />
+
+      <SettingsModal 
+        visible={settingsModal} 
+        onClose={() => setSettingsModal(false)} 
+        currentUser={currentUser} 
+        userAvatar={userAvatar} 
+        soundEnabled={soundEnabled} 
+        toggleSound={toggleSound} 
+        setAvatarModal={setAvatarModal} 
+        handleLogout={handleLogout} 
+      />
+
+      <AvatarModal 
+        visible={avatarModal} 
+        onClose={() => setAvatarModal(false)} 
+        currentUser={currentUser} 
+        userAvatar={userAvatar} 
+        avatarCategory={avatarCategory} 
+        setAvatarCategory={setAvatarCategory} 
+        selectAvatar={selectAvatar} 
+      />
+
+      <FriendsModal 
+        visible={friendsModal} 
+        onClose={() => setFriendsModal(false)} 
+        currentUser={currentUser} 
+        // Add your friend-related states here (friendsTab, friendsList, etc.)
+        friendsList={[]} 
+        recentPlayersList={[]} 
+        pendingRequests={pendingRequests} 
+        incomingInvitesList={incomingInvitesList} 
+      />
+
       <SafeAreaView style={styles.fulfilledTopActionCenterBar}>
         <View style={styles.topActionCenterInnerRow}>
           <TouchableOpacity activeOpacity={0.85} style={styles.megaFulfilledButton} onPress={() => { loadGlobalLeaderboard(); setLeaderboardModal(true); }}>
@@ -37,10 +100,10 @@ const DashboardScreen = ({
           <Text style={{ fontSize: 30 }}>👑</Text>
         </TouchableOpacity>
         <TouchableOpacity activeOpacity={0.85} onPress={() => setProfileStatsModal(true)} style={styles.centerBannerContainerPerfect}>
-          <Text style={styles.centerBannerUsername} numberOfLines={1}>{currentUser.name}</Text>
+          <Text style={styles.centerBannerUsername} numberOfLines={1}>{currentUser?.name}</Text>
           <View style={styles.centerBannerCoinsRow}>
             <Text style={{ fontSize: 13, marginRight: 4 }}>🪙</Text>
-            <Text style={styles.centerBannerCoinsText}>{currentUser.coins.toLocaleString()} Coins</Text>
+            <Text style={styles.centerBannerCoinsText}>{currentUser?.coins?.toLocaleString()} Coins</Text>
           </View>
           <Text style={styles.viewProfileSubHint}>Tap to view stats</Text>
         </TouchableOpacity>
@@ -56,7 +119,7 @@ const DashboardScreen = ({
   );
 };
 
-// Paste Dashboard specific styles here from your original App.js
+// ... Apne purane Dashboard ke styles yahan neeche paste karein ...
 const styles = StyleSheet.create({
   dashboardContainer: { flex:1, backgroundColor:'#0a0f1d', width:'100%', height:'100%' },
   lobbyBgImage: { width:'100%', height:'100%', position:'absolute', top:0, left:0, right:0, bottom:0 },
